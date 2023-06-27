@@ -1,39 +1,50 @@
-
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <title>Alarm Clock in JavaScript</title>
-    <link rel="stylesheet" href="alarm.css">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <meta name="Alarm Clock" content="Alarm Clock"/>
+    <title>Alarm Clock</title>
 
+    <!--Favicon-->
 
-  </head>
-  <body>
-    <div class="wrapper">
-      <i class="fa-light fa-alarm-clock"></i>
-      <!-- <img src="" alt="clock"> -->
-      <h1>00:00:00 PM</h1>
-      <div class="content">
-        <div class="column">
-          <select>
-            <option value="Hour" selected disabled hidden>Hour</option>
+    <link rel = "icon" href="https://library.kissclipart.com/20191014/aie/kissclipart-clock-icon-management-icon-time-icon-474c4db05c8d3baf.png" />
+
+    <!-- Stylesheet-->
+
+    <link rel = "stylesheet" href = "blankfreecss.css" />
+</head>
+
+<body>
+    <div class= "page-title">
+      <h1>ALARM CLOCK </h1>
+    </div>
+    <div class="main-container d-flex">
+      <div class="clock-container d-flex">
+        <div class="current-time mb" id= "current-time">_ : _ : _ </div>
+        <form class="alarm-form d-flex mb">
+          <div>
+          <select name="hours" id="hours" required></select>
+
+          <select required name="minutes" id="minutes"></select>
+
+          <select required name="seconds" id="seconds"></select>
+          <select required name="am-pm" id="am-pm">
+            <option value="AM">AM</option>
+            <option value="PM">PM</option>
           </select>
-        </div>
-        <div class="column">
-          <select>
-            <option value="Minute" selected disabled hidden>Minute</option>
-          </select>
-        </div>
-        <div class="column">
-          <select>
-            <option value="AM/PM" selected disabled hidden>AM/PM</option>
-          </select>
+          </div>
+          <button class="btn submit-button" id="submitButton" type="submit">Set Alarm</button>
+        </form>
+        <div class="set-alarm-container">
+          <div class="set-alarm-container-title mb">ALARMS</div>
+          <div class="alarms-container" id= "alarms-container"></div>
         </div>
       </div>
-      <button>Set Alarm</button>
     </div>
-    <script src="alarm.js"></script>
+    <!-- JavaScript File -->
+    <script src="blankfreejs.js"></script>
   </body>
+</html>
 </html>
