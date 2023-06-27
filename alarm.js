@@ -1,77 +1,145 @@
+const currentTime = document.querySelector("#current-time");
+const setHours = document.querySelector("#hours");
+const setMinutes = document.querySelector("#minutes");
+const setSeconds = document.querySelector("#seconds");
+const setAmPm = document.querySelector("#am-pm");
+const setAlarmButton = document.querySelector("#submitButton");
+const alarmContainer = document.querySelector("#alarms-container");
 
-const currentTime = document.querySelector("h1"),
-content = document.querySelector(".content"),
-selectMenu = document.querySelectorAll("select"),
-setAlarmBtn = document.querySelector("button");
-
-let alarmTime, isAlarmSet,
-ringtone = new Audio("C:\Users\DELL\OneDrive\Documents\Coding Ninja\javascript\code\ringtone.mp3");
-// to make option available for selection 
-
-for (let i = 12; i > 0; i--) {
-     i = i < 10 ? `0${i}` : i;              //  add zero if number is less than 10 //
-    let option = `<option value="${i}">${i}</option>`;
-    selectMenu[0].firstElementChild.insertAdjacentHTML("afterend", option);
-}
-
-for (let i = 59; i >= 0; i--) {
-    i = i < 10 ? `0${i}` : i;
-    let option = `<option value="${i}">${i}</option>`;
-    selectMenu[1].firstElementChild.insertAdjacentHTML("afterend", option);
-}
-
-for (let i = 2; i > 0; i--) {
-    let ampm = i == 1 ? "AM" : "PM";
-    let option = `<option value="${ampm}">${ampm}</option>`;
-    selectMenu[2].firstElementChild.insertAdjacentHTML("afterend", option);
-}
+// Adding Hours, Minutes, Seconds in DropDown Menu
+window.addEventListener("DOMContentLoaded", (event) => {
+  
+  dropDownMenu(1, 12, setHours);
  
-// get current time 
-setInterval(() => {
-    let date = new Date(),
-    h = date.getHours(),
-    m = date.getMinutes(),
-    s = date.getSeconds(),
-    ampm = "AM";
-    if(h >= 12) {
-        h = h - 12;
-        ampm = "PM";
-    }
-    h = h == 0 ? h = 12 : h;
-    h = h < 10 ? "0" + h : h;
-    m = m < 10 ? "0" + m : m;
-    s = s < 10 ? "0" + s : s;
-    currentTime.innerText = `${h}:${m}:${s} ${ampm}`;
+  dropDownMenu(0, 59, setMinutes);
 
-    // check if current time and set time is same 
-    if (alarmTime === `${h}:${m} ${ampm}`) {
-        ringtone.play();
-        ringtone.loop = true;
-        alert("Ring Ring Alarm");
-        alert = function(){};
-        alert("test");
-    }
+  dropDownMenu(0, 59, setSeconds);
+
+  setInterval(getCurrentTime, 1000);
+  fetchAlarm();
 });
 
-function setAlarm() {
-    if (isAlarmSet) {
-        alarmTime = "";
-        ringtone.pause();
-        content.classList.remove("disable");
-        setAlarmBtn.innerText = "Set Alarm";
-        return isAlarmSet = false;
-        
-    }
+// Event Listener added to Set Alarm Button
+setAlarmButton.addEventListener("click", getInput);
 
-    // check if input is valid or not 
-    let time = `${selectMenu[0].value}:${selectMenu[1].value} ${selectMenu[2].value}`;
-    if (time.includes("Hour") || time.includes("Minute") || time.includes("AM/PM")) {
-        return alert("Please, select a valid time to set Alarm!");
-    }
-    alarmTime = time;
-    isAlarmSet = true;
-    content.classList.add("disable");
-    setAlarmBtn.innerText = "Clear Alarm";
+
+function dropDownMenu(start, end, element) {
+  for (let i = start; i <= end; i++) {
+    const dropDown = document.createElement("option");
+    dropDown.value = i < 10 ? "0" + i : i;
+    dropDown.innerHTML = i < 10 ? "0" + i : i;
+    element.appendChild(dropDown);
+  }
 }
 
-setAlarmBtn.addEventListener("click", setAlarm);
+
+function getCurrentTime() {
+  let time = new Date();
+  time = time.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric",
+    hour12: true,
+  });
+  currentTime.innerHTML = time;
+
+  return time;
+}
+
+
+function getInput(e) {
+  e.preventDefault();
+  const hourValue = setHours.value;
+  const minuteValue = setMinutes.value;
+  const secondValue = setSeconds.value;
+  const amPmValue = setAmPm.value;
+
+  const alarmTime = convertToTime(
+    hourValue,
+    minuteValue,
+    secondValue,
+    amPmValue
+  );
+  setAlarm(alarmTime);
+}
+
+// Converting time to 24 hour format
+function convertToTime(hour, minute, second, amPm) {
+  return `${parseInt(hour)}:${minute}:${second} ${amPm}`;
+}
+
+
+function setAlarm(time, fetching = false) {
+  const alarm = setInterval(() => {
+    if (time === getCurrentTime()) {
+      alert("Alarm Ringing");
+    }
+    console.log("running");
+  }, 500);
+
+  addAlaramToDom(time, alarm);
+  if (!fetching) {
+    saveAlarm(time);
+  }
+}
+
+// Alarms set by user Dislayed in HTML
+function addAlaramToDom(time, intervalId) {
+  const alarm = document.createElement("div");
+  alarm.classList.add("alarm", "mb", "d-flex");
+  alarm.innerHTML = `
+              <div class="time">${time}</div>
+              <button class="btn delete-alarm" data-id=${intervalId}>Delete</button>
+              `;
+  const deleteButton = alarm.querySelector(".delete-alarm");
+  deleteButton.addEventListener("click", (e) => deleteAlarm(e, time, intervalId));
+
+  alarmContainer.prepend(alarm);
+}
+
+// Is alarms saved in Local Storage?
+function checkAlarams() {
+  let alarms = [];
+  const isPresent = localStorage.getItem("alarms");
+  if (isPresent) alarms = JSON.parse(isPresent);
+
+  return alarms;
+}
+
+// save alarm to local storage
+function saveAlarm(time) {
+  const alarms = checkAlarams();
+
+  alarms.push(time);
+  localStorage.setItem("alarms", JSON.stringify(alarms));
+}
+
+// Fetching alarms from local storage
+function fetchAlarm() {
+  const alarms = checkAlarams();
+
+  alarms.forEach((time) => {
+    setAlarm(time, true);
+  });
+}
+
+
+function deleteAlarm(event, time, intervalId) {
+  const self = event.target;
+
+  clearInterval(intervalId);
+
+  const alarm = self.parentElement;
+  console.log(time);
+
+  deleteAlarmFromLocal(time);
+  alarm.remove();
+}
+
+function deleteAlarmFromLocal(time) {
+  const alarms = checkAlarams();
+
+  const index = alarms.indexOf(time);
+  alarms.splice(index, 1);
+  localStorage.setItem("alarms", JSON.stringify(alarms));
+}
